@@ -92,16 +92,24 @@ export function heroRowHTML(catalog, safe) {
     .filter((product) => product.was && product.was > product.price)
     .sort((a, b) => (1 - b.price / b.was) - (1 - a.price / a.was));
 
-  const first = departments[0];
-  const second = departments[1];
+  /* Exactly five tiles, one row, equal height.
+     This used to place five tiles into a four-column grid, which put one card
+     alone on a second row with two empty columns beside it. A promotional row
+     with a hole in it reads as a rendering fault, so the count is fixed and
+     narrower breakpoints drop tiles from the end rather than wrapping them. */
+  const tiles = [
+    primary ? slotHTML(primary, "omni-slot omni-slot--primary") : "",
+    departments[0] ? quadHTML(`Popular in ${departments[0].name}`, inCategory(departments[0].slug),
+      `shop.html?cat=${encodeURIComponent(departments[0].slug)}`) : "",
+    feature ? slotHTML(feature, "omni-slot omni-slot--feature") : "",
+    quadHTML("Deals ending soon", discounted, "shop.html?sort=discount", { deals: true }),
+    departments[1] ? quadHTML(`More in ${departments[1].name}`, inCategory(departments[1].slug),
+      `shop.html?cat=${encodeURIComponent(departments[1].slug)}`) : "",
+  ].filter(Boolean).slice(0, 5);
 
-  return `<div class="omni-hero">
-    ${primary ? slotHTML(primary, "omni-slot omni-slot--primary") : ""}
-    ${first ? quadHTML(`Popular in ${first.name}`, inCategory(first.slug), `shop.html?cat=${encodeURIComponent(first.slug)}`) : ""}
-    ${feature ? slotHTML(feature, "omni-slot omni-slot--feature") : ""}
-    ${quadHTML("Deals ending soon", discounted, "shop.html?sort=discount", { deals: true })}
-    ${second ? quadHTML(`More in ${second.name}`, inCategory(second.slug), `shop.html?cat=${encodeURIComponent(second.slug)}`) : ""}
-  </div>`;
+  return `<div class="omni-hero" data-tiles="${tiles.length}">${tiles
+    .map((tile, index) => tile.replace(/^<section /, `<section data-tile="${index + 1}" `))
+    .join("")}</div>`;
 }
 
 export function sixPackRowHTML(catalog, safe) {

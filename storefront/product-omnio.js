@@ -17,6 +17,7 @@
 import {
   loadCatalog, loadProduct, byId, catOf, money, addToBag,
   variantsOf, variantColors, swatchStyle, swatchLabel, promotionSafeProducts,
+  loadReviews,
 } from "./shop-data.js";
 import { variantSizeOptions, variantSizeValue } from "./variant-options.js";
 import { esc } from "./app.js";
@@ -131,20 +132,75 @@ function buyBoxHTML(product, price) {
   </aside>`;
 }
 
-function specTableHTML(spec) {
-  if (!spec || typeof spec !== "object") return "";
+function specTableHTML(spec, product) {
   const rows = [];
   const text = (value) => Array.isArray(value) ? value.join(", ")
     : value && typeof value === "object" ? "" : String(value ?? "");
-  Object.entries(spec).forEach(([key, value]) => {
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      Object.entries(value).forEach(([k, v]) => { if (text(v)) rows.push([k, text(v)]); });
-    } else if (text(value) && value !== "group") rows.push([key, text(value)]);
-  });
+  /* A dimension the variant selector owns must not also appear here: the
+     record carries one colour for the whole product, so a shopper looking at
+     Brown was being told "Color: blue" two panels further down. */
+  const OWNED = /^(colou?r|size|variant)$/i;
+  if (spec && typeof spec === "object") {
+    Object.entries(spec).forEach(([key, value]) => {
+      if (OWNED.test(key)) return;
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        Object.entries(value).forEach(([k, v]) => { if (!OWNED.test(k) && text(v)) rows.push([k, text(v)]); });
+      } else if (text(value) && value !== "group") rows.push([key, text(value)]);
+    });
+  }
+  /* Facts the record carries that are not in `spec`. Nothing is invented: a
+     field the product does not have simply produces no row. */
+  if (product.brand) rows.push(["Brand", product.brand]);
+  if (product.raw?.sku) rows.push(["SKU", product.raw.sku]);
+  if (product.raw?.condition) rows.push(["Condition", String(product.raw.condition)]);
+  if (product.vendorName) rows.push(["Seller", product.vendorName]);
+  rows.push(["Product reference", String(product.id)]);
   if (!rows.length) return "";
+
+  /* Split into two columns so a long table reads as a panel rather than a
+     scroll. An odd count puts the extra row on the left. */
+  const half = Math.ceil(rows.length / 2);
+  const column = (list) => `<table class="ospec"><tbody>${list.map(([key, value]) =>
+    `<tr><th scope="row">${esc(key)}</th><td>${esc(value)}</td></tr>`).join("")}</tbody></table>`;
   return `<section class="opdp-sec"><h2>Product details</h2>
-    <table class="ospec"><tbody>${rows.map(([key, value]) =>
-      `<tr><th scope="row">${esc(key)}</th><td>${esc(value)}</td></tr>`).join("")}</tbody></table>
+    <div class="ospec__cols">${column(rows.slice(0, half))}${column(rows.slice(half))}</div>
+  </section>`;
+}
+
+/* Ratings and reviews. Selldone returns no ratings for this catalogue, so the
+   block renders clearly-labelled sample content and says so in place, twice.
+   The moment a product carries real ratings, loadReviews returns them and
+   `sample` goes false — the label and every figure follow automatically. */
+function reviewsHTML(product) {
+  const data = loadReviews([product]);
+  if (!data.reviews.length) return "";
+  const average = data.average.toFixed(1);
+  const stars = (n) => `${"★".repeat(Math.round(n))}${"☆".repeat(5 - Math.round(n))}`;
+  return `<section class="opdp-sec" id="reviews">
+    <h2>Customer reviews${data.sample ? ` <span class="oreviews__tag">sample content</span>` : ""}</h2>
+    <div class="oreviews">
+      <div class="oreviews__score">
+        <p class="oreviews__avg"><b>${average}</b> out of 5</p>
+        <p class="oreviews__stars" aria-label="${average} out of 5">${stars(data.average)}</p>
+        <p class="oreviews__count">${data.total} rating${data.total === 1 ? "" : "s"}</p>
+        <div class="oreviews__bars">
+          ${data.counts.map((row) => `<div class="oreviews__bar">
+            <span>${row.star} star</span>
+            <i><b style="width:${row.pct.toFixed(0)}%"></b></i>
+            <span>${row.pct.toFixed(0)}%</span></div>`).join("")}
+        </div>
+      </div>
+      <div class="oreviews__list">
+        ${data.reviews.slice(0, 5).map((review) => `<article class="oreview">
+          <p class="oreview__who"><b>${esc(review.name)}</b>${review.city ? ` &middot; ${esc(review.city)}` : ""}</p>
+          <p class="oreview__stars" aria-label="${review.rating} out of 5">${stars(review.rating)}</p>
+          ${review.body ? `<p class="oreview__body">${esc(review.body)}</p>` : ""}
+        </article>`).join("")}
+        ${data.sample ? `<p class="oreviews__note">These reviews are sample content shown to
+          demonstrate the layout. They are not customer reviews and are not counted in any
+          product rating.</p>` : ""}
+      </div>
+    </div>
   </section>`;
 }
 
@@ -187,6 +243,25 @@ async function init() {
 
   document.title = `${product.name} — Omnio`;
 
+  /* Two rails, both relevant. The second used to filter for a *different*
+     department, which is how studio microphones ended up under a hiking shoe.
+     Same seller is the honest second axis in a marketplace; if that seller has
+     too little to fill a rail, the nearest price band in the same department
+     stands in rather than a random slice of the catalogue. */
+  const safe = promotionSafeProducts(catalog.products).filter((row) => row.id !== product.id);
+  const sameDepartment = safe.filter((row) => row.cat === product.cat);
+  const byPriceProximity = (a, b) =>
+    Math.abs(a.price - product.price) - Math.abs(b.price - product.price);
+  const sellerRows = product.vendorSlug
+    ? safe.filter((row) => row.vendorSlug === product.vendorSlug && row.cat !== product.cat)
+        .sort(byPriceProximity)
+    : [];
+  const nearPrice = [...sameDepartment].sort(byPriceProximity);
+  const fromSeller = sellerRows.length >= 4 ? sellerRows : nearPrice;
+  const fromSellerTitle = sellerRows.length >= 4
+    ? `More from ${product.vendorName}`
+    : "Similar in price";
+
   root.innerHTML = `
     <nav class="ocrumb" aria-label="Breadcrumb">
       <a href="index.html">Omnio</a><span>&rsaquo;</span>
@@ -198,18 +273,19 @@ async function init() {
       <div class="opdp__info">
         <h1>${esc(product.name)}</h1>
         ${product.brand ? `<p class="opdp__brand">Brand: <a href="shop.html?brand=${encodeURIComponent(product.brand)}">${esc(product.brand)}</a></p>` : ""}
-        ${stars(product.rate, product.rateCount)}
+        ${product.rateCount
+          ? stars(product.rate, product.rateCount)
+          : `<a class="opdp__rate opdp__rate--sample" href="#reviews">See sample reviews</a>`}
         <hr>
         ${variantHTML(product, selected)}
         ${bulletsHTML(product)}
       </div>
       ${buyBoxHTML(product, price)}
     </div>
-    ${specTableHTML(product.spec)}
-    ${relatedHTML(`More in ${category.name}`,
-      promotionSafeProducts(catalog.products).filter((row) => row.cat === product.cat && row.id !== product.id))}
-    ${relatedHTML("Customers also viewed",
-      promotionSafeProducts(catalog.products).filter((row) => row.id !== product.id && row.cat !== product.cat))}
+    ${specTableHTML(product.spec, product)}
+    ${relatedHTML(`More in ${category.name}`, sameDepartment)}
+    ${relatedHTML(fromSellerTitle, fromSeller)}
+    ${reviewsHTML(product)}
   `;
 
   /* Gallery */

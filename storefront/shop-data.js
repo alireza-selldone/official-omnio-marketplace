@@ -417,7 +417,20 @@ export function swatchLabel(color) {
 }
 
 
-export const variantColors = (p) => variantsOf(p).map((v) => v.color).filter(Boolean);
+/* One entry per colour, not one per variant. A product with three colours in
+   six sizes has eighteen variants, and returning all eighteen painted eighteen
+   swatches - the same three colours repeated six times each. Case and the
+   optional alpha suffix are normalised, because "#B76E79" and "#b76e79ff" are
+   one colour and would otherwise each get their own swatch. */
+export const variantColors = (p) => {
+  const seen = new Map();
+  variantsOf(p).forEach((variant) => {
+    if (!variant.color) return;
+    const key = colorKey(variant.color);
+    if (!seen.has(key)) seen.set(key, variant.color);
+  });
+  return [...seen.values()];
+};
 
 /* ---------- Variants ----------
    `products/list` carries TWO arrays. `variants` is a distinct-values summary —
