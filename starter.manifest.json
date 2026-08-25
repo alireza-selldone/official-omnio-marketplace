@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "starterVersion": 1,
+  "id": "selldone-marketplace-omnio-v1",
+  "repository": "https://github.com/alireza-selldone/selldone-omnio.git",
+  "branch": "main",
+  "requiredDesignMarkers": [
+    "storefront/index.html::market-hero",
+    "storefront/app.js::market-header",
+    "storefront/product.js::product-seller",
+    "storefront/home.js::MARKETPLACE_VENDORS",
+    "storefront/vendor.html::vendor-hero",
+    "storefront/styles.css::Omnio marketplace"
+  ],
+  "forbiddenDesignMarkers": [
+    "class=\"rail",
+    "class=\"tickrule",
+    ".rail{",
+    ".tickrule{"
+  ]
+}

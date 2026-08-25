@@ -1,0 +1,4 @@
+interface:
+  display_name: "Setup Selldone Fashion Store"
+  short_description: "Clone Fashioni v2 and launch a verified fashion store"
+  default_prompt: "Use $setup-selldone-fashion-store to clone the latest Fashioni v2 starter, repoint it to this connected Selldone shop, validate the complete storefront, publish it to GitHub, and deploy it."

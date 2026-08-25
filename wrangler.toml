@@ -1,0 +1,12 @@
+name = "selldone-omnio"
+compatibility_date = "2026-08-01"
+workers_dev = true
+
+[[routes]]
+pattern = "omnio.selldone.shop"
+custom_domain = true
+
+[assets]
+directory = "./dist/"
+not_found_handling = "single-page-application"
+html_handling = "auto-trailing-slash"

@@ -1,0 +1,659 @@
+/* ==========================================================================
+   OMNIO — everything-store visual language
+
+   This is a deliberately different system to the marketplace it was forked
+   from. That one is airy: wide margins, large type, generous cards, one accent.
+   This one is the opposite, because a store that sells four hundred thousand
+   things has to answer a different question — not "what is this brand", but
+   "where is the thing I came for".
+
+   So: a dark utility chrome that never competes with merchandise, a page
+   surface that is grey rather than white so that white cards read as objects
+   on a shelf, tight spacing, small type, and two accents that mean exactly one
+   thing each — yellow for "add it", red for "the price moved".
+
+   Nothing here is copied from any retailer. The conventions it follows — a
+   persistent search field, a department rail, a tile grid, a right-hand buy
+   box — are the shared grammar of large catalogue retail, and the palette,
+   type, proportions and components below are Omnio's own.
+   ========================================================================== */
+
+:root{
+  /* Chrome is near-black with a blue cast; it recedes so product photography
+     does not have to fight it. */
+  --om-chrome:#111c26;
+  --om-chrome-2:#1d2c3a;
+  --om-chrome-line:#2c3f52;
+
+  /* The page is grey. White is reserved for cards, which is what makes a
+     dense grid legible without borders everywhere. */
+  --om-page:#e6e9ea;
+  --om-card:#ffffff;
+  --om-line:#d8dde0;
+  --om-line-strong:#b9c2c7;
+
+  --om-ink:#0d1418;
+  --om-ink-2:#3f4d55;
+  --om-ink-3:#63737c;
+  --om-link:#046b70;
+  --om-link-hover:#c4551a;
+
+  /* Two accents, one meaning each. */
+  --om-act:#ffd043;          /* add to bag */
+  --om-act-hover:#f4c01f;
+  --om-act-2:#ffa32c;        /* buy now */
+  --om-act-2-hover:#f2911a;
+  --om-deal:#c9182b;         /* price moved */
+  --om-save:#0a7b45;
+  --om-star:#de7921;
+
+  --om-r:8px;
+  --om-r-sm:4px;
+  --om-shadow:0 1px 2px rgba(15,28,38,.10);
+  --om-shadow-2:0 3px 10px rgba(15,28,38,.14);
+  --om-tap:44px;
+
+  --om-wrap:1500px;
+  --om-pad:clamp(12px,2vw,22px);
+}
+
+/* ---------- 01 base ---------- */
+body{background:var(--om-page);color:var(--om-ink);}
+.page{background:var(--om-page);}
+.wrap{width:100%;max-width:var(--om-wrap);margin-inline:auto;padding-inline:var(--om-pad);}
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+
+/* ---------- 02 header ---------- */
+.omnio-header{background:var(--om-chrome);color:#fff;}
+.omnio-header .topbar{
+  background:var(--om-chrome-2);color:#d7e0e6;
+  display:grid;place-items:center;min-height:34px;padding:5px var(--om-pad);
+  font-size:13px;font-weight:500;
+}
+.omnio-header .topbar__short{display:none;}
+
+.omni-primary{
+  display:grid;align-items:center;gap:10px;
+  grid-template-columns:auto auto minmax(0,1fr) auto;
+  max-width:var(--om-wrap);margin-inline:auto;padding:9px var(--om-pad);
+}
+.omni-burger{display:none;}
+.omni-burger svg,.omni-all svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;}
+
+.omni-logo{
+  display:inline-flex;align-items:baseline;gap:3px;min-height:var(--om-tap);
+  padding:6px 8px;border-radius:var(--om-r-sm);
+  color:#fff;font-size:26px;font-weight:800;letter-spacing:-.035em;line-height:1;
+}
+.omni-logo i{width:7px;height:7px;border-radius:50%;background:var(--om-act);}
+.omni-logo:hover{outline:1px solid #46596a;}
+
+.omni-deliver{
+  display:inline-flex;align-items:center;gap:6px;min-height:var(--om-tap);
+  padding:4px 8px;border-radius:var(--om-r-sm);color:#fff;
+}
+.omni-deliver svg{width:17px;height:17px;flex:0 0 17px;fill:none;stroke:currentColor;stroke-width:1.7;}
+.omni-deliver small{display:block;font-size:12px;color:#b9c6cf;line-height:1.15;}
+.omni-deliver b{display:block;font-size:14px;font-weight:700;line-height:1.2;}
+.omni-deliver:hover{outline:1px solid #46596a;}
+
+/* The search field is the primary control on every page, so it is the widest
+   thing in the row and never collapses to an icon on desktop. */
+.omni-search{display:flex;align-items:stretch;min-width:0;border-radius:var(--om-r);overflow:hidden;background:#fff;}
+.omni-search:focus-within{box-shadow:0 0 0 3px var(--om-act);}
+.omni-search__scope{
+  flex:0 0 auto;padding:0 11px;border:0;border-right:1px solid var(--om-line);
+  background:#eaeef0;color:var(--om-ink-2);font:inherit;font-size:13px;cursor:pointer;
+}
+.omni-search__scope:hover{background:#dfe5e8;}
+.omni-search input{
+  flex:1 1 auto;min-width:0;height:42px;padding:0 12px;border:0;
+  background:#fff;color:var(--om-ink);font:inherit;font-size:15px;
+}
+.omni-search input:focus{outline:none;}
+.omni-search__go{
+  flex:0 0 50px;display:grid;place-items:center;border:0;
+  background:var(--om-act);color:#111c26;cursor:pointer;
+}
+.omni-search__go:hover{background:var(--om-act-hover);}
+.omni-search__go svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;}
+
+.omni-acts{display:flex;align-items:center;gap:2px;}
+.omni-act{
+  display:grid;align-content:center;min-height:var(--om-tap);
+  padding:4px 9px;border:0;border-radius:var(--om-r-sm);
+  background:none;color:#fff;font:inherit;text-align:left;cursor:pointer;
+}
+.omni-act small{font-size:12px;color:#b9c6cf;line-height:1.15;}
+.omni-act b{font-size:14px;font-weight:700;line-height:1.2;}
+.omni-act:hover{outline:1px solid #46596a;}
+.omni-cart{display:flex;align-items:center;gap:4px;}
+.omni-cart svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.omni-cart__n{
+  position:relative;top:-7px;min-width:18px;padding:0 4px;border-radius:9px;
+  background:var(--om-act);color:#111c26;
+  font-size:12px;font-weight:800;text-align:center;
+}
+
+/* ---------- 03 department rail ---------- */
+.omni-navrow{background:var(--om-chrome-2);}
+.omni-nav{
+  display:flex;align-items:center;gap:2px;
+  max-width:var(--om-wrap);margin-inline:auto;padding:0 var(--om-pad);
+  overflow-x:auto;scrollbar-width:none;
+}
+.omni-nav::-webkit-scrollbar{display:none;}
+.omni-all{
+  display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;
+  min-height:38px;padding:0 10px;border:0;border-radius:var(--om-r-sm);
+  background:none;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;
+}
+.omni-nav__links{display:flex;align-items:center;gap:2px;}
+.omni-nav__links a{
+  display:inline-flex;align-items:center;flex:0 0 auto;
+  min-height:38px;padding:0 10px;border-radius:var(--om-r-sm);
+  color:#e7eef2;font-size:14px;white-space:nowrap;
+}
+.omni-all:hover,.omni-nav__links a:hover{outline:1px solid #46596a;}
+
+/* ---------- 04 the tile grid ----------
+   The homepage of a catalogue this size is a board of entry points, not a
+   story. Equal-weight white tiles on grey, each one a department door. */
+.omni-board{
+  display:grid;gap:18px;
+  grid-template-columns:repeat(auto-fill,minmax(272px,1fr));
+  padding:18px 0;
+}
+.omni-tile{
+  display:flex;flex-direction:column;
+  padding:18px;border-radius:var(--om-r);background:var(--om-card);box-shadow:var(--om-shadow);
+}
+.omni-tile > h3{margin:0 0 12px;font-size:20px;font-weight:800;letter-spacing:-.01em;line-height:1.2;}
+.omni-tile__quad{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.omni-tile__quad a{display:block;color:var(--om-ink);}
+.omni-tile__quad span{
+  display:block;aspect-ratio:1;overflow:hidden;border-radius:var(--om-r-sm);background:#f2f5f6;
+}
+.omni-tile__quad img{width:100%;height:100%;object-fit:cover;}
+.omni-tile__quad b{display:block;margin-top:5px;font-size:12.5px;font-weight:500;line-height:1.3;}
+.omni-tile__quad a:hover b{color:var(--om-link-hover);text-decoration:underline;}
+.omni-tile__one{display:block;flex:1;}
+.omni-tile__one span{display:block;aspect-ratio:4/3;overflow:hidden;border-radius:var(--om-r-sm);background:#f2f5f6;}
+.omni-tile__one img{width:100%;height:100%;object-fit:cover;}
+.omni-tile__link{
+  margin-top:auto;padding-top:12px;
+  color:var(--om-link);font-size:13.5px;font-weight:500;
+}
+.omni-tile__link:hover{color:var(--om-link-hover);text-decoration:underline;}
+.omni-tile--wide{grid-column:span 2;}
+
+/* ---------- 05 product card ----------
+   Dense by design: the shopper is comparing, so price and rating do the work
+   and the name is allowed to be small. */
+.omni-rail-sec{margin:18px 0;padding:18px;border-radius:var(--om-r);background:var(--om-card);box-shadow:var(--om-shadow);}
+.omni-rail-sec > h2{margin:0 0 14px;font-size:21px;font-weight:800;letter-spacing:-.01em;}
+.omni-rail{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:thin;padding-bottom:6px;}
+.omni-rail > *{flex:0 0 186px;scroll-snap-align:start;}
+
+.ocard{display:block;color:var(--om-ink);}
+.ocard__art{
+  display:block;position:relative;aspect-ratio:1;overflow:hidden;
+  border-radius:var(--om-r-sm);background:#fff;
+}
+.ocard__art img{width:100%;height:100%;object-fit:contain;}
+.ocard__deal{
+  position:absolute;left:0;top:8px;padding:2px 7px;border-radius:0 3px 3px 0;
+  background:var(--om-deal);color:#fff;font-size:11px;font-weight:800;letter-spacing:.02em;
+}
+.ocard__name{
+  display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
+  margin:8px 0 3px;font-size:13.5px;font-weight:400;line-height:1.35;color:var(--om-ink);
+}
+.ocard:hover .ocard__name{color:var(--om-link-hover);text-decoration:underline;}
+.ocard__rate{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.ocard__stars{color:var(--om-star);font-size:13px;letter-spacing:-1px;}
+.ocard__rate small{color:var(--om-link);font-size:12.5px;}
+/* The cents are set small and raised, the way a shelf price is read. */
+.ocard__price{display:flex;align-items:baseline;gap:6px;font-weight:700;}
+.ocard__price b{font-size:20px;letter-spacing:-.02em;}
+.ocard__price sup{font-size:12px;font-weight:700;top:-.5em;}
+.ocard__price s{color:var(--om-ink-3);font-size:12.5px;font-weight:400;}
+.ocard__ship{margin-top:2px;color:var(--om-ink-3);font-size:12px;}
+
+/* ---------- 06 buttons ---------- */
+.obtn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:var(--om-tap);padding:0 16px;border:1px solid var(--om-line-strong);
+  border-radius:var(--om-tap);background:#fff;color:var(--om-ink);
+  font:inherit;font-size:14px;font-weight:500;cursor:pointer;
+}
+.obtn:hover{background:#f4f6f7;}
+.obtn--act{background:var(--om-act);border-color:#e6b820;font-weight:600;}
+.obtn--act:hover{background:var(--om-act-hover);}
+.obtn--buy{background:var(--om-act-2);border-color:#e08c14;font-weight:600;}
+.obtn--buy:hover{background:var(--om-act-2-hover);}
+.obtn--full{width:100%;}
+
+/* ---------- 07 responsive ---------- */
+@media (max-width:1100px){
+  .omni-deliver{display:none;}
+  .omni-act--orders{display:none;}
+  .omni-tile--wide{grid-column:span 1;}
+}
+@media (max-width:760px){
+  .omnio-header .topbar__long{display:none;}
+  .omnio-header .topbar__short{display:block;}
+  /* Search drops to its own row so it keeps full width on a phone. */
+  .omni-primary{grid-template-columns:auto auto 1fr;gap:6px;padding:7px var(--om-pad);}
+  .omni-burger{display:grid;place-items:center;width:var(--om-tap);height:var(--om-tap);border:0;background:none;color:#fff;cursor:pointer;}
+  .omni-search{grid-column:1 / -1;order:3;}
+  .omni-acts{justify-self:end;}
+  .omni-act:not(.omni-cart){display:none;}
+  .omni-logo{font-size:22px;}
+  .omni-board{grid-template-columns:1fr;gap:12px;padding:12px 0;}
+  .omni-rail > *{flex-basis:150px;}
+}
+
+/* ---------- 08 hero row ----------
+   One tall editorial panel beside a set of tiles. Most of those tiles are
+   grids of live product photography rather than artwork, which is why only
+   two slots in this row need a designer. */
+.omni-hero{
+  display:grid;gap:16px;padding:16px 0;
+  grid-template-columns:1.28fr 1fr 1fr 1fr;
+  grid-auto-rows:minmax(0,auto);
+}
+.omni-slot{
+  position:relative;display:flex;flex-direction:column;overflow:hidden;
+  border-radius:var(--om-r);background:var(--slot-tone,#1f5fd0);color:#fff;
+  box-shadow:var(--om-shadow);
+}
+.omni-slot--primary{grid-row:span 2;}
+.omni-slot__copy{padding:20px 20px 12px;}
+.omni-slot__copy p{margin:0 0 4px;font-size:13px;font-weight:600;opacity:.85;}
+.omni-slot__copy h2{margin:0 0 14px;font-size:clamp(21px,2vw,30px);font-weight:800;letter-spacing:-.02em;line-height:1.12;}
+.omni-slot__copy .obtn{color:#111c26;}
+.omni-slot__art{flex:1;min-height:150px;display:block;}
+.omni-slot__art img{width:100%;height:100%;object-fit:cover;display:block;}
+/* An empty slot states its own spec instead of pretending to be finished. */
+.omni-slot__art.is-empty{
+  display:grid;place-items:center;margin:0 12px 12px;border-radius:var(--om-r-sm);
+  border:2px dashed rgba(255,255,255,.45);background:rgba(255,255,255,.10);
+}
+.omni-slot__todo{padding:14px;text-align:center;font-size:12.5px;line-height:1.6;opacity:.9;}
+.omni-slot__todo b{font-size:15px;letter-spacing:.02em;}
+
+.omni-quad{
+  display:flex;flex-direction:column;padding:16px;
+  border-radius:var(--om-r);background:var(--om-card);box-shadow:var(--om-shadow);
+}
+.omni-quad h3{margin:0 0 12px;font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1.2;}
+.omni-quad__grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.omni-quad__grid a{position:relative;display:block;}
+.omni-quad__art{display:block;aspect-ratio:1;overflow:hidden;border-radius:var(--om-r-sm);background:#f2f5f6;}
+.omni-quad__art img{width:100%;height:100%;object-fit:contain;}
+.omni-quad__off{
+  position:absolute;left:5px;bottom:5px;padding:1px 6px;border-radius:3px;
+  background:var(--om-deal);color:#fff;font-style:normal;font-size:11px;font-weight:800;
+}
+
+/* ---------- 09 six-packs ---------- */
+.omni-packs{margin:8px 0 18px;}
+.omni-packs > h2{margin:0 0 12px;font-size:22px;font-weight:800;letter-spacing:-.015em;}
+.omni-packs__row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+.omni-six{padding:16px;border-radius:var(--om-r);background:var(--om-card);box-shadow:var(--om-shadow);}
+.omni-six__hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.omni-six__hd h3{margin:0;font-size:16px;font-weight:800;}
+.omni-six__hd a{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:var(--om-ink-2);}
+.omni-six__hd a:hover{background:#eef2f3;}
+.omni-six__hd svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.omni-six__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.omni-six__grid a{display:block;color:var(--om-ink);}
+.omni-six__art{display:block;aspect-ratio:1;overflow:hidden;border-radius:var(--om-r-sm);background:#f2f5f6;}
+.omni-six__art img{width:100%;height:100%;object-fit:contain;}
+.omni-six__off,.omni-six__price{display:block;margin-top:5px;font-style:normal;font-size:12.5px;font-weight:700;}
+.omni-six__off{color:var(--om-deal);}
+
+@media (max-width:1200px){
+  .omni-hero{grid-template-columns:1.2fr 1fr 1fr;}
+  .omni-packs__row{grid-template-columns:1fr;}
+}
+@media (max-width:860px){
+  .omni-hero{grid-template-columns:1fr 1fr;}
+  .omni-slot--primary{grid-row:auto;grid-column:1 / -1;}
+}
+@media (max-width:560px){
+  .omni-hero{grid-template-columns:1fr;padding:12px 0;}
+  .omni-six__grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+}
+
+/* ---------- 10 breadcrumb ---------- */
+.ocrumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:12px 0;font-size:12.5px;color:var(--om-ink-3);}
+.ocrumb a{color:var(--om-link);}
+.ocrumb a:hover{color:var(--om-link-hover);text-decoration:underline;}
+.ocrumb span[aria-current]{color:var(--om-ink-3);}
+
+/* ---------- 11 product page ----------
+   Gallery, facts, and a bordered buy panel. The panel is a box rather than a
+   floating card because it is a form the shopper fills in, not a promotion. */
+.opdp{
+  display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr) 300px;
+  gap:26px;align-items:start;padding:8px 0 26px;
+  background:var(--om-card);border-radius:var(--om-r);padding:22px;box-shadow:var(--om-shadow);
+}
+.opdp__media{display:grid;grid-template-columns:62px minmax(0,1fr);gap:12px;position:sticky;top:14px;}
+.opdp__thumbs{display:flex;flex-direction:column;gap:8px;}
+.opdp__thumbs[hidden]{display:none;}
+.opdp__thumb{
+  width:60px;height:60px;padding:3px;border:1px solid var(--om-line);border-radius:var(--om-r-sm);
+  background:#fff;cursor:pointer;
+}
+.opdp__thumb img{width:100%;height:100%;object-fit:contain;}
+.opdp__thumb.is-on{border-color:var(--om-link);box-shadow:0 0 0 2px rgba(4,107,112,.25);}
+.opdp__main{display:grid;place-items:center;aspect-ratio:1;background:#fff;border-radius:var(--om-r-sm);overflow:hidden;}
+.opdp__main img{width:100%;height:100%;object-fit:contain;}
+
+.opdp__info{min-width:0;}
+.opdp__info h1{margin:0 0 6px;font-size:clamp(19px,1.7vw,25px);font-weight:600;line-height:1.3;letter-spacing:-.01em;}
+.opdp__brand{margin:0 0 6px;font-size:13.5px;color:var(--om-ink-3);}
+.opdp__brand a{color:var(--om-link);}
+.opdp__brand a:hover{color:var(--om-link-hover);text-decoration:underline;}
+.opdp__rate{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;}
+.opdp__stars{color:var(--om-star);letter-spacing:1px;}
+.opdp__rate a{color:var(--om-link);}
+.opdp__info hr{margin:14px 0;border:0;border-top:1px solid var(--om-line);}
+
+.opdp__opt{margin-bottom:14px;}
+.opdp__opt p{margin:0 0 7px;font-size:13.5px;color:var(--om-ink-2);}
+.opdp__opt p b{color:var(--om-ink);}
+.opdp__swatches,.opdp__sizes{display:flex;flex-wrap:wrap;gap:7px;}
+.opdp__swatch{
+  width:var(--om-tap);height:var(--om-tap);padding:0;border:2px solid var(--om-line-strong);
+  border-radius:var(--om-r-sm);cursor:pointer;
+}
+.opdp__swatch.is-on{border-color:var(--om-link);box-shadow:0 0 0 2px rgba(4,107,112,.22);}
+.opdp__size{
+  min-width:var(--om-tap);min-height:36px;padding:0 12px;
+  border:1px solid var(--om-line-strong);border-radius:var(--om-r-sm);
+  background:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;
+}
+.opdp__size.is-on{border-color:var(--om-link);background:#e9f4f4;color:var(--om-link);}
+
+.opdp__about{margin-top:16px;}
+.opdp__about h2{margin:0 0 8px;font-size:16px;font-weight:700;}
+.opdp__about ul{margin:0;padding-left:18px;}
+.opdp__about li{margin-bottom:6px;font-size:13.5px;line-height:1.6;color:var(--om-ink-2);}
+.opdp__about b{color:var(--om-ink);}
+
+.obuy{
+  padding:16px;border:1px solid var(--om-line-strong);border-radius:var(--om-r);
+  background:#fff;position:sticky;top:14px;
+}
+.opdp__price{display:flex;align-items:flex-start;gap:1px;line-height:1;}
+.opdp__price sup{font-size:13px;font-weight:600;margin-top:3px;}
+.opdp__price b{font-size:30px;font-weight:600;letter-spacing:-.02em;}
+.obuy__tax{margin:6px 0 0;font-size:12px;color:var(--om-ink-3);}
+.opdp__ship{margin:10px 0 0;font-size:13px;color:var(--om-ink-2);line-height:1.5;}
+.obuy__stock{margin:10px 0 0;font-size:16px;font-weight:600;color:var(--om-save);}
+.obuy__stock.is-out{color:var(--om-deal);}
+.obuy__qty{display:flex;align-items:center;gap:8px;margin:12px 0;font-size:13px;color:var(--om-ink-2);}
+.obuy__qty select{
+  min-height:34px;padding:0 8px;border:1px solid var(--om-line-strong);
+  border-radius:var(--om-r-sm);background:#f4f6f7;font:inherit;
+}
+.obuy__acts{display:grid;gap:8px;margin-top:12px;}
+.obtn--full{width:100%;}
+.obuy__facts{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--om-line);display:grid;gap:6px;}
+.obuy__facts > div{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;}
+.obuy__facts dt{color:var(--om-ink-3);}
+.obuy__facts dd{margin:0;color:var(--om-ink);text-align:right;}
+.obuy__facts a{color:var(--om-link);}
+
+.opdp-sec{margin-top:18px;padding:20px 22px;background:var(--om-card);border-radius:var(--om-r);box-shadow:var(--om-shadow);}
+.opdp-sec > h2{margin:0 0 14px;font-size:19px;font-weight:700;letter-spacing:-.01em;}
+.ospec{width:100%;border-collapse:collapse;font-size:13.5px;}
+.ospec th,.ospec td{padding:8px 10px;border-bottom:1px solid var(--om-line);text-align:left;vertical-align:top;}
+.ospec th{width:34%;background:#f4f6f7;color:var(--om-ink-2);font-weight:600;}
+
+.orel{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);gap:14px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin;}
+.orel__item{display:block;color:var(--om-ink);}
+.orel__art{display:block;aspect-ratio:1;overflow:hidden;border-radius:var(--om-r-sm);background:#f2f5f6;}
+.orel__art img{width:100%;height:100%;object-fit:contain;}
+.orel__item b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;
+  margin-top:7px;font-size:13px;font-weight:400;line-height:1.4;}
+.orel__item em{display:block;margin-top:3px;font-style:normal;font-size:14px;font-weight:700;}
+.orel__item:hover b{color:var(--om-link-hover);text-decoration:underline;}
+
+.onotfound{padding:60px 0;text-align:center;}
+.onotfound h1{margin:0 0 8px;font-size:26px;}
+.onotfound p{margin:0 0 18px;color:var(--om-ink-2);}
+
+/* ---------- 12 listing ----------
+   A rail of counted facets and horizontal rows. A row gives the title room to
+   be read and puts price, rating, seller and availability on one scan line. */
+.olist{display:grid;grid-template-columns:230px minmax(0,1fr);gap:20px;padding:6px 0 26px;align-items:start;}
+.olist__rail{padding:16px;background:var(--om-card);border-radius:var(--om-r);box-shadow:var(--om-shadow);position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;}
+.ofacet + .ofacet{margin-top:16px;padding-top:14px;border-top:1px solid var(--om-line);}
+.ofacet h3{margin:0 0 8px;font-size:14.5px;font-weight:700;}
+.ofacet ul{margin:0;padding:0;list-style:none;}
+.ofacet li button{
+  display:flex;justify-content:space-between;gap:8px;width:100%;min-height:30px;
+  padding:4px 6px;border:0;border-radius:var(--om-r-sm);
+  background:none;color:var(--om-link);font:inherit;font-size:13.5px;text-align:left;cursor:pointer;
+}
+.ofacet li button:hover{background:#eef3f4;color:var(--om-link-hover);}
+.ofacet li button.is-on{background:#e9f4f4;color:var(--om-ink);font-weight:700;}
+.ofacet li button small{color:var(--om-ink-3);font-weight:400;}
+.ofacet__clear{color:var(--om-ink-2) !important;font-size:12.5px !important;}
+.ofacet__price{display:flex;align-items:center;gap:6px;}
+.ofacet__price input{
+  width:100%;min-width:0;min-height:32px;padding:0 7px;
+  border:1px solid var(--om-line-strong);border-radius:var(--om-r-sm);background:#fff;font:inherit;font-size:13px;
+}
+.ofacet__price span{color:var(--om-ink-3);font-size:12.5px;}
+.ofacet__price button{
+  flex:0 0 auto;min-height:32px;padding:0 11px;border:1px solid var(--om-line-strong);
+  border-radius:var(--om-r-sm);background:#f4f6f7;font:inherit;font-size:13px;cursor:pointer;
+}
+.ofacet__price button:hover{background:#e8edee;}
+.ofacet__check{display:flex;align-items:center;gap:8px;min-height:var(--om-tap);font-size:13.5px;color:var(--om-ink-2);cursor:pointer;}
+
+.olist__main{min-width:0;}
+.olist__hd{
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;
+  padding:14px 18px;background:var(--om-card);border-radius:var(--om-r);box-shadow:var(--om-shadow);margin-bottom:14px;
+}
+.olist__hd h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.015em;}
+.olist__hd p{margin:2px 0 0;font-size:13px;color:var(--om-ink-3);}
+.olist__sort{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--om-ink-2);}
+.olist__sort select{
+  min-height:34px;padding:0 8px;border:1px solid var(--om-line-strong);
+  border-radius:var(--om-r-sm);background:#f4f6f7;font:inherit;
+}
+.olist__rows{display:grid;gap:0;background:var(--om-card);border-radius:var(--om-r);box-shadow:var(--om-shadow);overflow:hidden;}
+.orow{display:grid;grid-template-columns:200px minmax(0,1fr) auto;gap:18px;padding:18px;align-items:start;}
+.orow + .orow{border-top:1px solid var(--om-line);}
+.orow__art{display:block;aspect-ratio:1;background:#fff;border-radius:var(--om-r-sm);overflow:hidden;}
+.orow__art img{width:100%;height:100%;object-fit:contain;}
+.orow__body{min-width:0;}
+.orow__name{display:block;font-size:17px;font-weight:400;line-height:1.35;color:var(--om-ink);}
+.orow__name:hover{color:var(--om-link-hover);text-decoration:underline;}
+.orow__brand{margin:3px 0 0;font-size:13px;color:var(--om-ink-3);}
+.orow__rate{margin:5px 0 0;font-size:13px;color:var(--om-star);}
+.orow__rate small{color:var(--om-link);}
+.orow__price{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin:8px 0 0;}
+.orow__price b{font-size:21px;font-weight:600;}
+.orow__price s{color:var(--om-ink-3);font-size:13px;}
+.orow__price em{
+  padding:1px 6px;border-radius:3px;background:var(--om-deal);
+  color:#fff;font-style:normal;font-size:12px;font-weight:700;
+}
+.orow__seller{margin:6px 0 0;font-size:12.5px;color:var(--om-ink-3);}
+.orow__seller a{color:var(--om-link);}
+.orow__stock{margin:5px 0 0;font-size:13px;font-weight:600;color:var(--om-save);}
+.orow__stock.is-out{color:var(--om-deal);}
+.orow__act{align-self:center;}
+.olist__none{padding:40px;text-align:center;color:var(--om-ink-2);background:var(--om-card);border-radius:var(--om-r);}
+
+@media (max-width:1100px){
+  .opdp{grid-template-columns:minmax(0,1fr) 290px;}
+  .opdp__media{grid-column:1;position:static;}
+  .opdp__info{grid-column:1;}
+  .obuy{grid-column:2;grid-row:1 / span 2;}
+}
+@media (max-width:860px){
+  .olist{grid-template-columns:minmax(0,1fr);}
+  .olist__rail{position:static;max-height:none;}
+  .orow{grid-template-columns:120px minmax(0,1fr);}
+  .orow__act{grid-column:2;align-self:start;}
+}
+@media (max-width:700px){
+  .opdp{grid-template-columns:minmax(0,1fr);padding:14px;}
+  .obuy{grid-column:1;grid-row:auto;position:static;}
+  .opdp__media{grid-template-columns:52px minmax(0,1fr);}
+  .opdp__thumb{width:50px;height:50px;}
+}
+
+/* ---------- 13 checkout ----------
+   Numbered sections and an order panel. Once a shopper is buying, navigation
+   is a way out rather than a service, so the page carries no rails. */
+.ocheckout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;padding:14px 0 30px;align-items:start;}
+.ostep{background:var(--om-card);border-radius:var(--om-r);box-shadow:var(--om-shadow);margin-bottom:14px;overflow:hidden;}
+.ostep__hd{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--om-line);}
+.ostep__hd span{display:grid;place-items:center;width:24px;height:24px;flex:0 0 24px;border-radius:50%;background:var(--om-chrome);color:#fff;font-size:13px;font-weight:800;}
+.ostep__hd h2{margin:0;font-size:17px;font-weight:700;}
+.ostep__bd{padding:18px;}
+.ogrid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ogrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.ofield{display:block;margin-bottom:12px;}
+.ofield > span{display:block;margin-bottom:5px;font-size:13px;font-weight:600;color:var(--om-ink-2);}
+.ofield input,.ofield select{width:100%;min-height:var(--om-tap);padding:0 11px;border:1px solid var(--om-line-strong);border-radius:var(--om-r-sm);background:#fff;font:inherit;font-size:14px;}
+.ofield input:focus-visible,.ofield select:focus-visible{outline:2px solid var(--om-link);outline-offset:1px;}
+
+.opay{position:relative;display:grid;grid-template-columns:20px minmax(0,1fr);gap:11px;align-items:center;padding:13px 15px;border:1px solid var(--om-line);border-radius:var(--om-r-sm);cursor:pointer;}
+.opay + .opay{margin-top:9px;}
+.opay.is-on{border-color:var(--om-link);background:#eef6f6;box-shadow:inset 0 0 0 1px var(--om-link);}
+.opay input{position:absolute;opacity:0;width:0;height:0;}
+.opay__dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--om-line-strong);}
+.opay.is-on .opay__dot{border-color:var(--om-link);border-width:6px;}
+.opay input:focus-visible ~ .opay__dot{outline:2px solid var(--om-link);outline-offset:3px;}
+.opay b{display:block;font-size:14.5px;}
+.opay small{display:block;margin-top:2px;color:var(--om-ink-3);font-size:12.5px;}
+.osecure{display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;margin:14px 0 0;padding:12px 14px;border:1px dashed var(--om-line-strong);border-radius:var(--om-r-sm);background:#f6f8f8;font-size:12.5px;line-height:1.55;color:var(--om-ink-2);}
+.osecure svg{width:18px;height:18px;fill:none;stroke:var(--om-link);stroke-width:1.8;}
+
+.oreview__row{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:14px;align-items:start;}
+.oreview__row + .oreview__row{margin-top:14px;padding-top:14px;border-top:1px solid var(--om-line);}
+.oreview__art{display:block;aspect-ratio:1;border:1px solid var(--om-line);border-radius:var(--om-r-sm);overflow:hidden;background:#fff;}
+.oreview__art img{width:100%;height:100%;object-fit:contain;}
+.oreview__row b{display:block;font-size:14px;font-weight:600;line-height:1.35;}
+.oreview__row small{display:block;margin-top:3px;color:var(--om-ink-3);font-size:12.5px;}
+.oreview__qty{display:inline-flex;align-items:center;gap:5px;margin-top:8px;border:1px solid var(--om-line-strong);border-radius:var(--om-r-sm);}
+.oreview__qty button{width:34px;height:32px;border:0;background:none;font-size:16px;color:var(--om-ink-2);cursor:pointer;}
+.oreview__qty button:hover{background:#eef2f3;}
+.oreview__qty em{min-width:20px;text-align:center;font-style:normal;font-weight:700;font-size:13px;}
+.oreview__money{font-weight:700;font-variant-numeric:tabular-nums;}
+
+.opanel{padding:16px;background:var(--om-card);border:1px solid var(--om-line-strong);border-radius:var(--om-r);position:sticky;top:14px;}
+.opanel h2{margin:0 0 10px;font-size:16px;font-weight:700;}
+.opanel hr{margin:14px 0;border:0;border-top:1px solid var(--om-line);}
+.opanel__note{margin:8px 0 0;font-size:12.5px;color:var(--om-ink-3);text-align:center;min-height:1em;}
+.opanel__row{display:flex;justify-content:space-between;gap:10px;padding:4px 0;font-size:13.5px;color:var(--om-ink-2);}
+.opanel__row .is-free{color:var(--om-save);font-weight:700;}
+.opanel__total{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--om-line);font-size:16px;font-weight:700;}
+.opanel__total b{font-size:21px;color:var(--om-deal);}
+.opanel__nudge{margin:10px 0 0;font-size:12.5px;color:var(--om-save);font-weight:600;}
+
+/* ---------- 14 bag ----------
+   A page, not a slide-over: at this catalogue size the bag is a working list
+   a shopper edits and returns to, and a narrow panel is the wrong room. */
+.obag{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;padding:14px 0 30px;align-items:start;}
+.obag__list{padding:18px 20px;background:var(--om-card);border-radius:var(--om-r);box-shadow:var(--om-shadow);}
+.obag__hd{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--om-line);}
+.obag__hd h1{margin:0;font-size:26px;font-weight:600;letter-spacing:-.02em;}
+.obag__hd span{font-size:12.5px;color:var(--om-ink-3);}
+.obag__row{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:18px;padding:18px 0;border-bottom:1px solid var(--om-line);}
+.obag__art{display:block;aspect-ratio:1;background:#fff;border-radius:var(--om-r-sm);overflow:hidden;}
+.obag__art img{width:100%;height:100%;object-fit:contain;}
+.obag__name{display:block;font-size:17px;line-height:1.35;color:var(--om-ink);}
+.obag__name:hover{color:var(--om-link-hover);text-decoration:underline;}
+.obag__variant{margin:4px 0 0;font-size:12.5px;color:var(--om-ink-3);}
+.obag__stock{margin:5px 0 0;font-size:13px;font-weight:600;color:var(--om-save);}
+.obag__stock.is-out{color:var(--om-deal);}
+.obag__seller{margin:4px 0 0;font-size:12.5px;color:var(--om-ink-3);}
+.obag__seller a{color:var(--om-link);}
+.obag__tools{display:flex;align-items:center;gap:12px;margin-top:10px;}
+.obag__qty select{min-height:32px;padding:0 8px;border:1px solid var(--om-line-strong);border-radius:var(--om-r-sm);background:#f4f6f7;font:inherit;font-size:13px;}
+.obag__del{min-height:var(--om-tap);padding:0 4px;border:0;background:none;color:var(--om-link);font:inherit;font-size:13px;cursor:pointer;}
+.obag__del:hover{color:var(--om-link-hover);text-decoration:underline;}
+.obag__money{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;}
+.obag__sub{margin:14px 0 0;text-align:right;font-size:17px;}
+.obag__sub b{font-size:20px;}
+.obag__panel{padding:16px;background:var(--om-card);border-radius:var(--om-r);box-shadow:var(--om-shadow);position:sticky;top:14px;}
+.obag__free{margin:0 0 10px;font-size:13px;color:var(--om-save);}
+.obag__nudge{margin:0 0 10px;font-size:13px;color:var(--om-ink-2);}
+.obag__total{margin:0 0 12px;font-size:16px;}
+.obag__total b{font-size:20px;}
+.obag__fine{margin:10px 0 0;font-size:12px;color:var(--om-ink-3);}
+.oempty{padding:60px 20px;text-align:center;background:var(--om-card);border-radius:var(--om-r);margin:16px 0;}
+.oempty h1{margin:0 0 8px;font-size:25px;}
+.oempty p{margin:0 0 18px;color:var(--om-ink-2);}
+
+/* ---------- 15 seller store ----------
+   The one place a seller identity leads, so the masthead is the only coloured
+   band and everything under it returns to ordinary catalogue grammar. */
+.ostore__hero{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;
+  padding:24px;border-radius:var(--om-r);background:var(--store-tone,#123a6b);color:#fff;margin-bottom:18px;
+}
+.ostore__mark{display:grid;place-items:center;width:72px;height:72px;border-radius:12px;background:#fff;overflow:hidden;padding:7px;}
+.ostore__mark img{width:100%;height:100%;object-fit:contain;}
+.ostore__mark span{color:var(--om-chrome);font-size:30px;font-weight:800;}
+.ostore__hero p{margin:0;font-size:13px;opacity:.85;}
+.ostore__hero h1{margin:2px 0 0;font-size:clamp(24px,2.6vw,36px);font-weight:800;letter-spacing:-.025em;}
+.ostore__desc{margin-top:6px !important;max-width:60ch;opacity:.9 !important;font-size:14px !important;}
+.ostore__depts{margin-bottom:18px;padding:20px;background:var(--om-card);border-radius:var(--om-r);box-shadow:var(--om-shadow);}
+.ostore__depts h2{margin:0 0 14px;font-size:19px;font-weight:700;}
+.ostore__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;}
+.ostore__dept{display:block;color:var(--om-ink);}
+.ostore__deptart{display:block;aspect-ratio:1;border-radius:var(--om-r-sm);overflow:hidden;background:#f2f5f6;}
+.ostore__deptart img{width:100%;height:100%;object-fit:contain;}
+.ostore__dept b{display:block;margin-top:8px;font-size:14px;font-weight:600;}
+.ostore__dept:hover b{color:var(--om-link-hover);text-decoration:underline;}
+.ostore__rail{margin-bottom:18px;padding:20px;background:var(--om-card);border-radius:var(--om-r);box-shadow:var(--om-shadow);}
+.ostore__railhd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.ostore__railhd h2{margin:0;font-size:19px;font-weight:700;}
+.ostore__railhd a{color:var(--om-link);font-size:13.5px;}
+.ostore__empty{padding:40px;text-align:center;color:var(--om-ink-2);background:var(--om-card);border-radius:var(--om-r);}
+
+@media (max-width:900px){
+  .ocheckout,.obag{grid-template-columns:minmax(0,1fr);}
+  .opanel,.obag__panel{position:static;}
+  .ogrid2,.ogrid3{grid-template-columns:1fr;}
+  .ostore__hero{grid-template-columns:auto minmax(0,1fr);}
+  .ostore__hero .obtn{grid-column:1 / -1;justify-self:start;}
+  .obag__row{grid-template-columns:100px minmax(0,1fr);}
+  .obag__money{grid-column:2;}
+}
+
+/* ---------- 16 wide strips ----------
+   Three navigational artworks under the hero. They carry no price or stock, so
+   unlike everything else on this page they cannot go stale — which is exactly
+   why they are allowed to be pictures rather than product grids. */
+.omni-strips{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:0 0 18px;}
+.omni-strip{
+  position:relative;display:block;overflow:hidden;border-radius:var(--om-r);
+  background:var(--strip-tone,#1f5fd0);box-shadow:var(--om-shadow);color:#fff;
+}
+.omni-strip img{display:block;width:100%;aspect-ratio:3/1;object-fit:cover;}
+.omni-strip__copy{
+  position:absolute;inset:auto 0 0 0;display:flex;align-items:baseline;
+  flex-wrap:wrap;gap:4px 10px;padding:22px 16px 12px;
+  background:linear-gradient(to top,rgba(9,18,24,.86),rgba(9,18,24,0));
+}
+.omni-strip__copy b{font-size:16px;font-weight:800;letter-spacing:-.015em;}
+.omni-strip__copy em{font-style:normal;font-size:13px;font-weight:600;color:var(--om-act);}
+.omni-strip:hover .omni-strip__copy em{text-decoration:underline;}
+.omni-strip:focus-visible{outline:3px solid var(--om-act);outline-offset:2px;}
+
+@media (max-width:900px){.omni-strips{grid-template-columns:1fr;}}

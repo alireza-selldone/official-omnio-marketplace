@@ -1,0 +1,359 @@
+# AI Agent Guide
+
+This project is a fully static Selldone storefront plus browser-side dashboard. Follow these rules when editing it.
+
+## Omnio Contract
+
+- The connected shop is Omnio (`15596`, `marko-5vMFPy7t`), not the Fashioni source shop.
+- Alio (`6178`, `alio`) is the fashion seller: 195 products across category ids `108846`–`108853`.
+- Merino (`6179`, `merino`) is the electronics seller: 127 products across category ids `108828`–`108842`.
+- Seller allocation is real Selldone variant-offer data. Never implement seller ownership as a display-only badge.
+- Public fallback seller presentation lives in `storefront/marketplace-config.js`; it may fill a pending vendor's name and description but must never supply price, stock, quantity, or checkout state.
+- Dedicated seller routes are `vendors.html` and `vendor.html?vendor=alio|merino`. Keep them in responsive audits, dead-control checks, footer/link checks, and deployment builds.
+- The seven audience shortcuts use exact restored product ids from the validated pre-cleanup snapshot because the public product-list payload omits shortcut relationships. Update those sets only after a fresh source/target comparison and a recoverable backup.
+- The supplied `walmart screenshot omnio store/` folder is reference material only. Preserve it locally and exclude it from Git and deployment.
+
+## Core Architecture
+
+- Storefront source lives in `storefront/` and is served at `/`.
+- Dashboard source lives in `dashboard/` and is served at `/dashboard/`.
+- OAuth callback source lives in `callback/` and is served at `/callback/`.
+- Shared browser modules live in `shared/`.
+- Static production output is generated into `dist/` by `scripts/build-static.mjs`.
+- Local product research under `storefront/assets/products/variants/references/` is never public build input; preserve it in the workspace but keep it out of `dist`, packages, Git, and deployment.
+- Local migration snapshots under `backups/` are recovery material. Preserve them in the workspace but keep them out of Git and deployment because they can contain private account metadata.
+- `scripts/dev-static.mjs` is only a local development file server. Do not add production Node server behavior.
+- Cloudflare Workers Static Assets must deploy `dist/` only through `wrangler deploy`. Do not deploy `.env`, logs, temp files, auth files, local browser profiles, or `dist/` source artifacts to git.
+
+## Runtime Config
+
+- Public runtime config is stored in HTML meta tags in `storefront/index.html`, `dashboard/index.html`, and `callback/index.html`.
+- Do not add client secrets, API keys, refresh tokens, access tokens, MCP credentials, Cloudflare tokens, or private `.env` values to any public file.
+- `.env` is only for local dev server settings such as `STATIC_DEV_PORT` and optional debug proxy settings.
+
+## Selldone API Rules
+
+- Storefront calls must go browser-direct to `https://xapi.selldone.com`.
+- Dashboard/backoffice calls must go browser-direct to `https://api.selldone.com`.
+- OAuth must use public-client PKCE against `https://selldone.com/oauth`; never use a client secret.
+- Storefront and dashboard OAuth tokens must stay separate in localStorage:
+  - `pajulina_storefront_oauth_tokens_v1`
+  - `pajulina_dashboard_oauth_tokens_v1`
+- Do not add Node-only API routes for production features.
+- **The `/api/storefront/*` shim is gone** (removed 14 Aug 2026). There is no
+  `storefront/static-storefront-api.js`; call `storefrontAuth.session()` and the XAPI
+  endpoints directly. Translating a fake path into a real one was all the shim ever did,
+  and the indirection hid which XAPI call a feature actually made. Do not reintroduce it.
+- Storefront search is client-side over the catalogue already in memory, matching the
+  reference app. 35 references do not justify a network round-trip per keystroke.
+- Selldone variant storage fields are not reliable presentation categories: legacy
+  products can put material/color slugs in `type` or `style`. Use the shared
+  `storefront/variant-options.js` classifier for Size; keep Color sourced only from
+  `variant.color`, and never flatten every variant field into a size list.
+- Treat navigation labels as presentation, never as catalogue structure. `All Products`,
+  `Shop by category`, and `Shop by product` must not be created as Selldone categories.
+  Each product keeps exactly one real product-type main category; Women, Men, Girls,
+  Boys, and Baby are audience shortcuts, with Baby Girls and Baby Boys only beneath
+  Baby. Before and after taxonomy writes, reject self-parenting, parent cycles, duplicate
+  wrappers, and empty or misleading navigation categories.
+- Storefront customer identity comes from `storefrontAuth.session()`, which reads
+  XAPI `/me` for the storefront context — never `api.selldone.com`.
+- Storefront order history is physical-only and loads from XAPI `GET /shops/@{shop}/basket/orders-PHYSICAL` with the `order-history` scope.
+- Storefront order detail loads from XAPI `GET /shops/@{shop}/baskets/{basket_id}` with the storefront customer token.
+- Storefront cart reads and mutations must use real Selldone XAPI. This shop sells physical products only, so cart state must load the physical basket from shop-info `baskets` and bill data. Basket item updates use `PUT /shops/@{shop}/basket/{product_id}` with the final `count`.
+- Storefront checkout is physical-only: save basket config, refresh physical bill, then call `POST /shops/@{shop}/basket/physical/buy/{gateway_code}`.
+- Storefront Stripe checkout must read the publishable key dynamically from Selldone storefront shop info gateway data. Never hardcode Stripe keys.
+- Blog reads use the registry endpoints `xapi.blogs.list` (`GET /shops/@{shop}/blogs`)
+  and `xapi.blogs.get` (`GET /shops/@{shop}/blogs/{blog_id}`). Three traps, all found by
+  testing rather than by reading the docs:
+  - `blog_id` on the detail route is the article's **`parent_id`** (the shop-blog record),
+    not the article id. Passing the article id returns "Blog not found", which reads like
+    a missing endpoint. It is not missing.
+  - `?extra=true` returns the category list but an **empty** `articles` array, filling
+    `last_articles` instead. Categories and articles need separate calls.
+  - The public list carries no category per article, so `loadBlog()` builds the map with
+    one filtered call per category (`?category=<id>`). That is bounded by category count
+    rather than the N+1 over articles the detail route would force. It is still N+1 in
+    the number of categories — acceptable at four, worth revisiting past a dozen.
+- Article publication dates cannot be backdated through the API. `created_at` is ignored
+  by `api.articles.shop_blog.upsert`, and a past `schedule_at` fires immediately, is
+  cleared, and resets `created_at` to the publish moment. Display `created_at` as the
+  truth rather than faking a spread. Verified 14 Aug 2026.
+- Product comments are article comments. Resolve the product article from `product.article_pack.article.id` or equivalent product info fields; do not use `/shops/@{shop}/products/{id}/reviews` as the primary XAPI path.
+
+## Selldone Image URL Standard
+
+- Use the central Selldone image helpers where present.
+- Do not create local one-off image resolvers in feature files.
+- Selldone underscore paths must be converted consistently, for example `shops_14952_products_demo` -> `https://cdn.selldone.com/app/shops/14952/products/demo128.png`.
+
+## Dashboard Code Organization
+
+- Keep dashboard feature logic split under `dashboard/features/`.
+- `dashboard/app.js` should mainly wire state, top-level rendering, and event bindings.
+- New dashboard feature modules should export a `createXFeature(deps)` factory.
+- Do not grow `dashboard/app.js` with large feature-specific blocks.
+
+## UI Rules
+
+- The storefront runs on ONE stylesheet, `storefront/styles.css`, organised as a
+  numbered design system: tokens -> reset -> type -> layout -> buttons -> product
+  card -> rails -> chrome -> overlays -> footer -> home modules -> page modules ->
+  target size. It replaced three stacked layers (a serif "Fashioni" base, a v2
+  refresh, and a `market-*` override block) that fought each other with roughly
+  200 `!important` declarations. Add a component in its numbered section and add
+  a token rather than a literal. The only `!important` rules left are `[hidden]`
+  and the reduced-motion block, and both carry a comment saying why.
+- Colour, spacing, radius, elevation and type are tokens. `--theme-*` is the
+  single recolour surface the theme picker and a cloned shop drive; neutrals
+  stay fixed so a jewelry or beauty clone changes hue only. Legacy token names
+  (`--graphite`, `--dial`, `--rule`, `--blued`, ...) are aliases into the system,
+  not a second palette.
+- `cardHTML(product, { compact, badge })` in `storefront/app.js` is the only
+  product card. Shop grid, homepage rails, savings panels, related strips and
+  seller pages all render it, so alignment cannot drift between modules. Reading
+  order is price -> name -> brand. Its badge is derived from live data only: a
+  real `clearance` tag passed by the caller, otherwise a discount the catalog
+  actually carries. Do not reintroduce a decorative "New in" flag.
+- A sale countdown renders only inside 7 days of the end date. Selldone discount
+  windows are routinely months long and "ends in 60d" on every card was noise.
+- Homepage modules remove themselves when they cannot be filled honestly.
+  `renderDeals` drops "Today's best prices" below four live discounts rather
+  than padding it with full-price stock; the same applies to the savings panels,
+  the promo grid and the department spotlight. A slow or unavailable catalog
+  must leave a navigable page, never a spinner: see `renderCatalogUnavailable`.
+- Hero slides declare an INTENT (`{audience}` or `{kind:"tech"}`), never a URL
+  with a product or category id in it. `resolveStoryHref()` turns that into a
+  route the live catalog can actually serve, falling back to `shop.html`.
+- Promotional cutouts must genuinely cut out. `removePromoImageBackground`
+  reports how much it cleared, crops to the subject's own bounding box so tiles
+  agree on scale, and a tile whose photograph will not separate from its
+  backdrop swaps in the next ranked product from the same department. Do not
+  "fix" a failed cutout with a white card behind it — that is banned.
+- A panel that is only translated off screen is still painted and still in the
+  tab order. `.drawer`, `.cart` and `.sheet` carry `visibility:hidden` when
+  closed, with the transition delayed so the slide-out still animates.
+- The PDP size table is an inline accordion directly above Specifications, not
+  a modal: it is reference material, and as a `<dialog>` it had to be dismissed
+  before the sizes it describes could be used. Two lessons worth keeping — an
+  author `display` rule on a `<dialog>` defeats the UA's
+  `dialog:not([open]){display:none}` whatever the specificity, because author
+  styles outrank UA styles; and a size guide is content, not a decision.
+- Hero slides carry their own `focus` / `focusMobile`, applied as
+  `--hero-focus`. A 16:9 asset on a 2.7:1 stage loses a third of its height,
+  and a centred crop took the top off the subject's head.
+- Dashboard UI should be English.
+- Rear-angle apparel photography is permanently banned from every promotional
+  placement. Products may remain in ordinary listings and their PDP, but all
+  homepage, navigation, brand, and seller promo selections must pass
+  `isPromotionSafeProduct()` / `promotionSafeProducts()` from
+  `storefront/shop-data.js`. Prefer excluding a questionable product to
+  resurfacing rear-angle imagery.
+- The homepage promotional grid has TWO modes and `shop.config.json` decides
+  which. Four square tiles and one portrait: the lead tile is 4/10 columns
+  across two rows, which lands near 2:3 and takes a portrait asset uncropped.
+  - **editorial** — `promoTiles` names a `{category, image, alt, focus}` per
+    tile. The photograph fills the tile (`object-fit:cover`), the copy is
+    reversed out over a scrim at the foot, and the tile field is dark so
+    reversed type stays legible while the image loads. This is what Omnio
+    ships, and it is why the tiles stopped being a small cutout adrift in a
+    coloured field. Artwork is editorial, shipped in `storefront/assets/promo/`
+    and optimised to WebP; the HEADLINE and price hook still come from the live
+    catalog, so the picture is styling and the claim is data.
+  - **catalog** — no artwork configured. Tiles fall back to a cut-out product
+    from their own department on a flat solid field, with no rotation, paper
+    card, gradient or shadow, and 24px of clearance from the copy. A clone that
+    keeps the code but not the artwork lands here, so do not delete it.
+  Both modes: five tiles, at least one technology tile when the catalog has
+  one, unique eyebrows, a live price hook in every headline, one pill CTA, and
+  no vendor names. `npm run check:bento -- <url>` detects the mode and asserts
+  the right set, writing 1440px and 375px screenshots to `artifacts/qa/`.
+- Promotional artwork is reviewed by eye before it ships. The rear-angle
+  apparel ban covers editorial photography as well as catalog cutouts, and the
+  check reads the image `alt` for it — so an accurate `alt` is a safety
+  control, not just an accessibility one.
+- Every activatable target is at least 44x44 (WCAG 2.5.5). Section 15 of the
+  stylesheet holds those rules in one place. `.sdbar` and `.market-footer` are
+  held to the 2.5.8 AA floor of 24px instead, which the audit encodes.
+- Use Bootstrap-compatible markup and Bootstrap Icons where the dashboard already uses them.
+- Keep the visual direction modern, minimal, operational, and compact.
+- Do not duplicate account controls; the user account menu belongs in the left sidebar profile.
+- Homepage reviews are sample content and must keep their visible label. The average and
+  the star distribution are computed by `summariseReviews()` from the review array — never
+  typed in. `loadReviews()` is the single switch point: when any product has
+  `rate_count > 0` it uses real ratings and the label disappears on its own.
+- Storefront `blog.html` and `article.html` are generated by `scripts/build-blog-pages.mjs`
+  from index.html's chrome, same as the content pages. Keep the empty state in `blog.js`
+  even when posts exist — the next shop starts with none.
+- Search and account were rebuilt from scratch, not recovered. The reference app's
+  `user-menu`, `account-profile`, `profile-pages` and `static-storefront-api` modules exist
+  in no git object: history was reset at project start and the first commit already had
+  them removed. Do not go looking for them.
+- Storefront content pages (`about-us`, `terms`, `privacy`, `contact-us`) are generated from
+  `store-pages/*.md`. Edit the Markdown, not the HTML, and keep the `{{PLACEHOLDER}}` tokens in the
+  source.
+- Never link a storefront path that only resolves through `not_found_handling`. With
+  `single-page-application` set, a missing page answers 200 with the homepage, so a broken link is
+  invisible to a status-code check. Assert the response differs from the homepage as well.
+  `dev-static.mjs` emulates Cloudflare's `html_handling` so this is testable locally.
+
+## Vendor Pages And Rails
+
+- An unknown vendor slug renders a not-found state. `vendor.html` used to fall
+  back to Alio for any unrecognised slug while leaving the wrong slug in the
+  URL, so a mistyped or retired seller silently served another vendor's
+  catalogue under that vendor's name. Every price, product and department on
+  the page belonged to somebody the visitor had not asked for. Treat a seller
+  fallback as a data-integrity fault, never as a convenience.
+- `View all` on a vendor page goes to `shop.html?vendor=<slug>`, which is a real
+  filter in `shop.js`. It previously pointed at `#vendor-products` — the same
+  twelve-card rail already on screen.
+- Every horizontal rail goes through `initRailNav(rail, nav, label)` in
+  `app.js`. A bare overflow container has no role, no name, no tab stop and no
+  visible control, so its content is reachable by trackpad and by nothing else.
+  The helper adds `role="group"`, an accessible name, a tab stop, arrow-key
+  scrolling and prev/next buttons that disable at each end and hide themselves
+  when nothing overflows. Native scrolling is untouched.
+- Vendor department discovery shows eight tiles and expands on request. Fifteen
+  departments as a flat grid ran to 1,702px on a phone. The toggle says "Show
+  all departments" — never a count.
+
+## Cards And Swatches
+
+- Cards in a group must end on one line. Two things moved the bottoms: a title
+  that ran to one or two lines, and a swatch row that only some products have.
+  `.pcard__name` reserves two lines, and the swatch slot is always emitted —
+  taking height only when a sibling card in the same group actually has
+  swatches, via `:has()`, so a catalog with no colours pays nothing.
+- The swatch row never wraps. Five swatches fit one line of a rail card; a
+  sixth wrapped and made that card 44px taller than its neighbours. Beyond
+  five, the remainder is shown as `+N` and the product page carries them all.
+- A variant with no colour is not a colour. Grouping colourless variants under
+  a synthetic key turned a bag with one navy variant and three material
+  variants into four swatches, three of them blank. A single colour renders no
+  selector at all — one colour is not a choice.
+- Group colours by `colorKey()`, never by the raw value. Selldone stores the
+  same colour with and without an alpha suffix, and grouping on the raw string
+  rendered `#243B64` and `#243B64ff` as two identical swatches.
+- `swatchLabel()` names every colour by nearest neighbour in `COLOR_NAMES`. It
+  used to fall through to the raw uppercase hex, so a screen reader announced
+  "#243B64". Add entries to the table rather than special-casing a product.
+
+## Promotional Eligibility
+
+- `isPromotionSafeProduct()` is the single guard for every promotional surface.
+  It reads name, category and tags, and is written as garment VOCABULARY —
+  rear-emphasis, intimates, swim/beachwear — not as a list of product ids or
+  filenames, so it survives a catalog change and a clone.
+- Write the pattern as a regex LITERAL. The guard was once assembled with
+  `new RegExp` from an array of strings and the escapes did not survive: `\b`
+  inside a template literal is a backspace character, not a word boundary, so
+  the guard matched nothing at all and six swimwear products walked into the
+  homepage rails while the code looked correct.
+- `beach` is inside the swim family deliberately. A beach cover-up is not
+  objectionable but its catalog photography is swimwear photography, and the
+  rule has always preferred one fewer promotional candidate over resurfacing an
+  image it should not have.
+
+## Merchandising Selection
+
+- A product earns one slot per page. Deals, brands, the department spotlight
+  and the savings panels each ranked the same catalog independently, so 31
+  homepage slots carried 24 distinct products. Modules claim what they show via
+  the shared ledger in `home.js`; a module still fills itself from claimed
+  stock if the unclaimed pool runs short, because an honest repeat beats a
+  half-empty rail.
+
+## Loading And Failure
+
+- Every catalog read is bounded by `fetchJson`'s timeout. Without it a hung
+  XAPI left the page on skeletons indefinitely, which is worse than an error
+  because there is nothing to act on.
+- `showCatalogError()` in `app.js` is the one error renderer, and it carries a
+  retry. Do not write a second inline error message.
+- Warm loads are dominated by XAPI, not by rendering: the slowest single call
+  is 1.3–1.8s against 185–515ms of frontend work. Before optimising the
+  storefront, measure the split — `performance.getEntriesByType("resource")`
+  filtered to `xapi.selldone.com` gives it directly.
+
+## Product Page
+
+- Three columns: gallery, information, and a buy column that is `position:sticky`
+  from 1024px up. The price lives in that column, next to the control it belongs
+  to. It used to sit at the far left of a full-width fixed bar, a screen away
+  from "Add to bag". The fixed `.buybar` is now phone and tablet only — two
+  persistent buy controls on one screen is one too many.
+- The quantity stepper and the add/buy buttons share one `quantity`. Adding a
+  single unit while the control reads three is the kind of quiet mismatch a
+  shopper only finds in the bag.
+- Section order is product -> what else to buy -> the detail you read before
+  deciding -> more to buy -> proof: frequently-bought-together, similar items,
+  about (overview + specifications), more from this seller, reviews.
+- `pros` renders as Key features with an icon chosen from the benefit's own
+  wording. `warranty`, `lead`, `condition` and `original` render as the buy
+  column's assurances. All four were already in the catalog and none of them
+  were on the page.
+- The product article is only used when it is ABOUT the product. Some records
+  carry copy belonging to a different item and some carry a single stray
+  character, so `overviewHTML` requires a distinctive word from the title to
+  appear in the body before trusting it, and falls back to the category blurb.
+  It also has to come from `products/{id}/info`; `products/list` does not carry
+  `article_pack`, and reading the summary record silently produced the fallback.
+- Cross-sell pairing lives in `shop.config.json`. Selldone's cross-sell is a
+  backoffice feature and XAPI does not expose it to a storefront — five candidate
+  endpoints all 404 and no product field carries it. `pairs` names companions per
+  product and anything unlisted falls back to its department. **No bundle
+  discount is invented**: this storefront cannot apply one at checkout, and a
+  saving that does not happen is a false claim. The button adds every item for
+  real, which is the part the reference implementations get wrong — theirs add
+  only the product being viewed.
+- Review content is demo and says so, because `rate_count` is 0 across this
+  catalog and Selldone returns no review photography. The photo strip reuses the
+  product's own gallery and only appears with three or more images; one photo
+  beside an empty counter reads as a broken grid.
+- Rail controls use the shared `data-rail-prev` / `data-rail-next` contract that
+  `initRailNav` binds. A rail that invents its own attribute names gets buttons
+  with no handler, which is what `check:controls` caught.
+
+## QA Scripts
+
+The checks assert contracts, not one design's magic numbers. Four of them were
+pinned to the previous layout and were rewritten rather than deleted:
+
+- `herocheck` asserts the three slides share ONE stage height and are each at
+  least 1920x1080, instead of requiring a literal 620px.
+- `portcheck` derives the expected department-column count from the live
+  category count, and stubs `cdn.selldone.com` so a synthetic fixture's fake
+  image path cannot report a CDN 404 as a storefront page error.
+- `imgsweep` seeds the cart from whatever the homepage is showing. It used to
+  name two product ids from the shop this repo was built against; once the
+  catalog moved on it hung for 30s and aborted before measuring shop and
+  checkout. A panel that will not open now fails that step and continues.
+- `_audit.js` compares the body surface and ink against the resolved `--surface`
+  and `--ink` tokens rather than two hardcoded RGB triples, requires only the
+  faces actually shipped, and implements WCAG 2.5.5's inline-link exception.
+- `bentocheck` detects which promo-grid mode is live and asserts the matching
+  set; the mode-independent rules stay in both branches.
+
+There is no lint script and no ESLint config in this repository. The closest
+equivalent is a parse check over every module:
+
+    for f in $(find storefront dashboard shared scripts callback -name '*.js' -o -name '*.mjs'); do node --check "$f"; done
+
+If a check fails because the design legitimately changed, generalise the
+assertion to the contract. Do not weaken it and do not delete it.
+
+## Git And Editing Hygiene
+
+- The worktree may contain user changes. Do not revert unrelated files.
+- Use focused patches and avoid broad refactors unless requested.
+- Do not commit `.env`, tokens, secrets, generated `dist/`, logs, temp files, local auth files, or browser profile folders.
+- When adding or deleting source files for this static package, stage the relevant source changes with git so they are not missed before deployment.
+- If a new Selldone API behavior or project convention is discovered and applied, update this file in the same change.
+
+## Reusable Fashioni V2 Starter
+
+- `starter.manifest.json` is the machine-readable design contract. Keep its required and forbidden markers aligned with the tracked storefront.
+- The reusable setup skill lives in `skills/setup-selldone-fashion-store/`; its bootstrap helper exports only Git-tracked files and records `.starter-provenance.json` in a new project.
+- `npm run setup` is the mandatory repoint step after cloning. For a different shop it rewrites the visible title-case identity and clears the previous domain, OAuth client, and audience mappings.
+- Do not reintroduce the fixed rail, tick ruler, progress ruler, or any page gutter reserved for them. The v2 starter intentionally has none of those artifacts in source or generated HTML.

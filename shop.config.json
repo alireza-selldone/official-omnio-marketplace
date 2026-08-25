@@ -1,0 +1,334 @@
+{
+  "$comment": "Public, non-secret marketplace storefront configuration for Omnio.",
+  "shop": {
+    "id": 15596,
+    "handle": "marko-5vMFPy7t",
+    "name": "Omnio",
+    "domain": "marko-5vMFPy7t.myselldone.com"
+  },
+  "isTemplate": false,
+  "oauth": {
+    "clientId": "01a02835-dc8f-71f5-95f8-bb299856e504",
+    "appName": "Omnio Storefront"
+  },
+  "brand": {
+    "foundedYear": 2026,
+    "cities": "Europe",
+    "tagline": "Everything you need, from people you can trust.",
+    "announcement": "Free pickup · Easy returns · Secure checkout"
+  },
+  "categories": [
+    {
+      "id": 108853,
+      "slug": "activewear",
+      "blurb": "Performance layers and everyday movement."
+    },
+    {
+      "id": 108852,
+      "slug": "footwear",
+      "blurb": "Shoes for work, weekends, sport, and play."
+    },
+    {
+      "id": 108848,
+      "slug": "dresses-and-one-pieces",
+      "blurb": "One-piece looks for every plan."
+    },
+    {
+      "id": 108846,
+      "slug": "tops-and-t-shirts",
+      "blurb": "Everyday tops, tees, and tanks."
+    },
+    {
+      "id": 108847,
+      "slug": "shorts",
+      "blurb": "Comfortable shorts for every pace."
+    },
+    {
+      "id": 108849,
+      "slug": "jackets-and-layers",
+      "blurb": "Light layers and outerwear."
+    },
+    {
+      "id": 108850,
+      "slug": "sunglasses",
+      "blurb": "Frames for bright days and bold looks."
+    },
+    {
+      "id": 108851,
+      "slug": "bags-and-accessories",
+      "blurb": "Finishing touches and carry-everywhere bags."
+    },
+    {
+      "id": 108828,
+      "slug": "laptop",
+      "blurb": "Computing for work, study, and play."
+    },
+    {
+      "id": 108837,
+      "slug": "monitors",
+      "blurb": "Clear, productive desktop displays."
+    },
+    {
+      "id": 108830,
+      "slug": "tvs",
+      "blurb": "Big-screen entertainment at home."
+    },
+    {
+      "id": 108829,
+      "slug": "microphones",
+      "blurb": "Create, stream, and record clearly."
+    },
+    {
+      "id": 108831,
+      "slug": "headphones",
+      "blurb": "Personal audio for every day."
+    },
+    {
+      "id": 108834,
+      "slug": "earbuds",
+      "blurb": "Compact wireless listening."
+    },
+    {
+      "id": 108832,
+      "slug": "digital-cameras",
+      "blurb": "Capture everyday moments and adventures."
+    },
+    {
+      "id": 108841,
+      "slug": "action-cameras",
+      "blurb": "Rugged cameras for life in motion."
+    },
+    {
+      "id": 108833,
+      "slug": "power-banks",
+      "blurb": "Portable power wherever you go."
+    },
+    {
+      "id": 108842,
+      "slug": "rv-power-stations",
+      "blurb": "Reliable power for travel and backup."
+    },
+    {
+      "id": 108835,
+      "slug": "flash-drives",
+      "blurb": "Simple portable storage."
+    },
+    {
+      "id": 108836,
+      "slug": "hard-drives",
+      "blurb": "Extra space for important files."
+    },
+    {
+      "id": 108838,
+      "slug": "printers",
+      "blurb": "Practical printing for home and office."
+    },
+    {
+      "id": 108839,
+      "slug": "keyboards",
+      "blurb": "Comfortable control for every setup."
+    },
+    {
+      "id": 108840,
+      "slug": "mice",
+      "blurb": "Fast, precise pointing and play."
+    }
+  ],
+  "audiences": [
+    {
+      "id": 108854,
+      "slug": "women",
+      "title": "Women",
+      "image": "assets/categories/women.png"
+    },
+    {
+      "id": 108855,
+      "slug": "men",
+      "title": "Men",
+      "image": "assets/categories/men.png"
+    },
+    {
+      "id": 108856,
+      "slug": "girls",
+      "title": "Girls",
+      "image": "assets/categories/girls.png"
+    },
+    {
+      "id": 108857,
+      "slug": "boys",
+      "title": "Boys",
+      "image": "assets/categories/boys.png"
+    },
+    {
+      "id": 108858,
+      "slug": "baby",
+      "title": "Baby",
+      "image": "assets/categories/baby.png"
+    },
+    {
+      "id": 108859,
+      "slug": "baby-girls",
+      "title": "Baby Girls",
+      "image": "assets/categories/baby-girls.png"
+    },
+    {
+      "id": 108860,
+      "slug": "baby-boys",
+      "title": "Baby Boys",
+      "image": "assets/categories/baby-boys.png"
+    }
+  ],
+  "categoryHeroes": {
+    "activewear": 711002,
+    "footwear": 711062,
+    "dresses-and-one-pieces": 711072,
+    "tops-and-t-shirts": 711082,
+    "sunglasses": 710958,
+    "bags-and-accessories": 711022,
+    "tvs": 710825,
+    "digital-cameras": 710866,
+    "power-banks": 710782,
+    "earbuds": 710783,
+    "flash-drives": 710784,
+    "hard-drives": 710785,
+    "rv-power-stations": 710883,
+    "jackets-and-layers": 711074,
+    "laptop": 710846
+  },
+  "hero": {
+    "mode": "slides",
+    "image": "",
+    "natural": {
+      "w": 1,
+      "h": 1
+    },
+    "linkProductId": 710892,
+    "hotspots": [],
+    "slides": [
+      {
+        "productId": 710892,
+        "kicker": "",
+        "title": "",
+        "lede": ""
+      },
+      {
+        "productId": 710830,
+        "kicker": "",
+        "title": "",
+        "lede": ""
+      },
+      {
+        "productId": 710847,
+        "kicker": "",
+        "title": "",
+        "lede": ""
+      }
+    ]
+  },
+  "spotlight": {
+    "mode": "highest-price"
+  },
+  "$contactComment": "Omnio is a demonstration marketplace, not a trading entity. These are placeholders reserved for exactly this purpose: the address uses the .example TLD that RFC 2606 reserves for documentation, the number is in Ofcom's reserved drama range (+44 20 7946 0xxx) and can never reach a real person, and EC1A 1BB is Royal Mail's own documented example postcode. Nothing here is a fabricated credential presented as genuine, which is why registration stays null rather than carrying an invented company number. A real deployment replaces every value and sets isDemonstration to false.",
+  "contact": {
+    "isDemonstration": true,
+    "entity": "Omnio",
+    "email": "hello@omnio.example",
+    "phone": "+44 20 7946 0142",
+    "address": "1 Example Street, London EC1A 1BB, United Kingdom",
+    "hours": "Monday to Friday, 09:00-17:00 GMT",
+    "responseTime": "within one working day",
+    "registration": null
+  },
+  "crossSell": {
+    "$comment": "Selldone's cross-sell is a backoffice feature and XAPI does not expose it to the storefront, so the pairing lives here. `pairs` names companions for specific products; anything not listed falls back to the best-ranked promotion-safe products from the same department. Prices shown are always the live catalog prices — no bundle discount is invented, because a discount this storefront cannot apply at checkout would be a false claim.",
+    "maxItems": 2,
+    "fallback": "same-department",
+    "pairs": {
+      "710766": [
+        710841,
+        710882
+      ],
+      "710882": [
+        710766,
+        710841
+      ],
+      "711071": [
+        711000,
+        711061
+      ]
+    }
+  },
+  "$heroSlotsComment": "Artwork is stored at its native resolution and WebP quality 95: visually indistinguishable from the source PNG and about a tenth of the weight. It is deliberately not downscaled, because a showcase storefront is judged on how the artwork looks. Each tone is sampled from the top of its own image and darkened so white copy clears the contrast floor, which makes the panel and its artwork read as one object.",
+  "heroSlots": [
+    {
+      "id": "primary",
+      "shape": "portrait",
+      "pixels": "941x1672",
+      "image": "assets/hero/hero-primary.webp",
+      "tone": "#317084",
+      "alt": "Children's clothing and shoes arranged on coloured display podiums",
+      "eyebrow": "Everyday value",
+      "headline": "Fast delivery on thousands of items",
+      "cta": {
+        "label": "Start shopping",
+        "href": "shop.html"
+      }
+    },
+    {
+      "id": "feature",
+      "shape": "square",
+      "pixels": "1254x1254",
+      "image": "assets/hero/hero-feature.webp",
+      "tone": "#3b5d6c",
+      "alt": "A laptop, headphones and television on coloured display podiums",
+      "eyebrow": "New arrivals",
+      "headline": "Fresh picks this week",
+      "cta": {
+        "label": "See what landed",
+        "href": "shop.html?sort=new"
+      }
+    }
+  ],
+  "heroStrips": [
+    {
+      "image": "assets/hero/strip-home.webp",
+      "tone": "#456554",
+      "headline": "Everything for the home",
+      "cta": {
+        "label": "Shop home",
+        "href": "shop.html"
+      },
+      "alt": "Home appliances arranged in a bright kitchen"
+    },
+    {
+      "image": "assets/hero/strip-kids.webp",
+      "tone": "#4a7a7c",
+      "headline": "Kids, ready for anything",
+      "cta": {
+        "label": "Shop kids",
+        "href": "shop.html?audience=girls"
+      },
+      "alt": "Children's clothing and footwear on coloured podiums"
+    },
+    {
+      "image": "assets/hero/strip-pets.webp",
+      "tone": "#446f82",
+      "headline": "Everything for pets",
+      "cta": {
+        "label": "Shop pets",
+        "href": "vendor.html?vendor=kyle-mason"
+      },
+      "alt": "Dog food, toys and accessories on coloured podiums"
+    },
+    {
+      "image": "assets/hero/strip-digital.webp",
+      "tone": "#1a3377",
+      "headline": "Tech that keeps up",
+      "cta": {
+        "label": "Shop electronics",
+        "href": "shop.html?cat=tv"
+      },
+      "alt": "Laptops, headphones and screens on a lit display"
+    }
+  ]
+}
