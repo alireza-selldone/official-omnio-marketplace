@@ -721,3 +721,66 @@ body{background:var(--om-page);color:var(--om-ink);}
 
 .opdp__rate--sample{color:var(--om-link);font-size:13px;}
 .opdp__rate--sample:hover{color:var(--om-link-hover);text-decoration:underline;}
+
+/* ---------- 18 corrections ---------- */
+
+/* Product art sits on white, not grey.
+   `object-fit:contain` leaves the container visible around any image whose
+   aspect ratio does not match its box, and a grey surround reads as a bar of
+   missing content rather than as breathing room. Catalogue photography is shot
+   on white, so white is the surround that disappears. */
+.omni-quad__art,.omni-six__art,.omni-tile__quad span,.ostore__deptart,.orel__art{
+  background:#fff;
+}
+
+/* The coloured slots gave a third of their height to two lines of copy and a
+   button stacked under them. The button moves beside the text, which returns
+   that height to the artwork - the part a shopper actually looks at. */
+.omni-slot__copy{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:10px var(--s4, 14px);align-items:center;
+  padding:12px 14px;
+}
+.omni-slot__copy p{grid-column:1;margin:0;font-size:12px;font-weight:600;opacity:.85;line-height:1.3;}
+.omni-slot__copy h2{
+  grid-column:1;grid-row:2;margin:0;
+  font-size:clamp(15px,1.15vw,19px);font-weight:800;letter-spacing:-.02em;line-height:1.2;
+}
+.omni-slot__copy .obtn{
+  grid-column:2;grid-row:1 / span 2;align-self:center;
+  white-space:nowrap;padding:0 14px;min-height:38px;font-size:13.5px;
+}
+
+/* ---------- theme ----------
+   The picker used to recolour only the parts of the inherited stylesheet that
+   still showed through, so most of the page stayed put and the change read as
+   broken. Omnio's neutrals are deliberately fixed - a utility chrome that
+   competes with merchandise is a worse storefront - so the theme drives the
+   accents instead: the two action colours, the link colour, and the tint the
+   chrome carries. That is a real, visible change on every page without
+   dismantling the design. */
+:root[data-theme="rose"]{
+  --om-act:#ffb4a2;--om-act-hover:#ff9c85;--om-act-2:#e54832;--om-act-2-hover:#cc3a26;
+  --om-link:#b03a22;--om-link-hover:#7d2715;--om-chrome:#2a1512;--om-chrome-2:#3d211c;--om-chrome-line:#54312a;
+}
+:root[data-theme="blue"]{
+  --om-act:#ffd043;--om-act-hover:#f4c01f;--om-act-2:#ffa32c;--om-act-2-hover:#f2911a;
+  --om-link:#046b70;--om-link-hover:#c4551a;--om-chrome:#111c26;--om-chrome-2:#1d2c3a;--om-chrome-line:#2c3f52;
+}
+:root[data-theme="emerald"]{
+  --om-act:#8ee6b4;--om-act-hover:#6fd89e;--om-act-2:#16855d;--om-act-2-hover:#0f6b4a;
+  --om-link:#0d6a4b;--om-link-hover:#c4551a;--om-chrome:#0d211a;--om-chrome-2:#173328;--om-chrome-line:#25473a;
+}
+:root[data-theme="violet"]{
+  --om-act:#d9b8ff;--om-act-hover:#c79cff;--om-act-2:#7d4cc2;--om-act-2-hover:#663ba3;
+  --om-link:#5b34a0;--om-link-hover:#c4551a;--om-chrome:#1a1428;--om-chrome-2:#282039;--om-chrome-line:#3b3151;
+}
+:root[data-theme="amber"]{
+  --om-act:#ffd98a;--om-act-hover:#ffc95e;--om-act-2:#d87910;--om-act-2-hover:#b8640a;
+  --om-link:#8a5209;--om-link-hover:#5f3806;--om-chrome:#241a0d;--om-chrome-2:#382a16;--om-chrome-line:#4d3c22;
+}
+
+@media (max-width:600px){
+  .omni-slot__copy{grid-template-columns:minmax(0,1fr);padding:14px;}
+  .omni-slot__copy .obtn{grid-column:1;grid-row:auto;justify-self:start;}
+}
