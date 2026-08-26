@@ -304,9 +304,13 @@ body{background:var(--om-page);color:var(--om-ink);}
 .omni-quad h3{margin:0 0 10px;font-size:16px;font-weight:800;letter-spacing:-.01em;line-height:1.2;}
 /* The grid takes the slack so every "See more" sits on the tile's bottom edge
    regardless of how long the heading above it wrapped. */
-.omni-quad__grid{flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;align-content:start;}
+/* `min-height:0` is the whole fix. A flex child will not shrink below its
+   content height without it, so this grid kept its two rows of images at full
+   size, pushed the total past the fixed band, and `overflow:hidden` cut the
+   "See more" link off the bottom - 348px of content in a 333px box. */
+.omni-quad__grid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;}
 .omni-quad__grid a{position:relative;display:block;min-height:0;}
-.omni-quad__art{display:block;height:100%;overflow:hidden;border-radius:var(--om-r-sm);background:#f2f5f6;}
+.omni-quad__art{display:block;height:100%;min-height:0;overflow:hidden;border-radius:var(--om-r-sm);}
 .omni-quad__art img{width:100%;height:100%;object-fit:contain;}
 .omni-quad .omni-tile__link{margin-top:10px;flex:0 0 auto;}
 .omni-quad__off{
