@@ -20,8 +20,12 @@ import { esc } from "./app.js";
    a fault, the other looks finished. */
 function slotHTML(slot, className) {
   const tone = slot.tone || "#1f5fd0";
+  /* The band is far wider than the artwork is tall, so `cover` throws most of
+     the height away. Centring would discard the products and keep the empty
+     backdrop, so each image carries its own measured focus point. */
   const art = slot.image
-    ? `<img src="${esc(slot.image)}" alt="${esc(slot.alt || "")}" loading="eager" width="1200" height="1600">`
+    ? `<img src="${esc(slot.image)}" alt="${esc(slot.alt || "")}" loading="eager"
+        style="object-position:${esc(slot.focus || "50% 50%")}" width="1200" height="1600">`
     : `<span class="omni-slot__todo">Artwork slot<br><b>${esc(slot.pixels || "")}</b><br>${esc(slot.shape || "")}</span>`;
   return `<section class="${className}" style="--slot-tone:${esc(tone)}">
     <div class="omni-slot__copy">
@@ -145,7 +149,8 @@ export function stripRowHTML(catalog) {
   return `<div class="omni-strips">
     ${strips.map((strip) => `<a class="omni-strip" href="${esc(strip.cta?.href || "shop.html")}"
       style="--strip-tone:${esc(strip.tone || "#1f5fd0")}">
-      <img src="${esc(strip.image)}" alt="${esc(strip.alt || "")}" loading="lazy" width="2172" height="724">
+      <img src="${esc(strip.image)}" alt="${esc(strip.alt || "")}" loading="lazy"
+        style="object-position:${esc(strip.focus || "50% 50%")}" width="2172" height="724">
       <span class="omni-strip__copy">
         <b>${esc(strip.headline || "")}</b>
         ${strip.cta ? `<em>${esc(strip.cta.label)}</em>` : ""}

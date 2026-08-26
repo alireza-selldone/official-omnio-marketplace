@@ -272,7 +272,8 @@
       "cta": {
         "label": "Start shopping",
         "href": "shop.html"
-      }
+      },
+      "focus": "49% 64%"
     },
     {
       "id": "feature",
@@ -286,7 +287,8 @@
       "cta": {
         "label": "See what landed",
         "href": "shop.html?sort=new"
-      }
+      },
+      "focus": "58% 57%"
     }
   ],
   "heroStrips": [
@@ -298,7 +300,8 @@
         "label": "Shop home",
         "href": "shop.html"
       },
-      "alt": "Home appliances arranged in a bright kitchen"
+      "alt": "Home appliances arranged in a bright kitchen",
+      "focus": "62% 50%"
     },
     {
       "image": "assets/hero/strip-kids.webp",
@@ -308,7 +311,8 @@
         "label": "Shop kids",
         "href": "shop.html?audience=girls"
       },
-      "alt": "Children's clothing and footwear on coloured podiums"
+      "alt": "Children's clothing and footwear on coloured podiums",
+      "focus": "61% 56%"
     },
     {
       "image": "assets/hero/strip-pets.webp",
@@ -318,7 +322,8 @@
         "label": "Shop pets",
         "href": "vendor.html?vendor=kyle-mason"
       },
-      "alt": "Dog food, toys and accessories on coloured podiums"
+      "alt": "Dog food, toys and accessories on coloured podiums",
+      "focus": "57% 62%"
     },
     {
       "image": "assets/hero/strip-digital.webp",
@@ -328,7 +333,9 @@
         "label": "Shop electronics",
         "href": "shop.html?cat=tv"
       },
-      "alt": "Laptops, headphones and screens on a lit display"
+      "alt": "Laptops, headphones and screens on a lit display",
+      "focus": "66% 52%"
     }
-  ]
+  ],
+  "$focusComment": "Each focus point is the edge-energy centroid of its own artwork, measured rather than guessed. It matters because the hero band is much wider than the portrait artwork is: object-fit cover has to discard most of the height, and centring would crop away the products, which on this image sit at 64% down with empty sky above them."
 }
