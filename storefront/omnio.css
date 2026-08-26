@@ -669,7 +669,11 @@ body{background:var(--om-page);color:var(--om-ink);}
    Three navigational artworks under the hero. They carry no price or stock, so
    unlike everything else on this page they cannot go stale — which is exactly
    why they are allowed to be pictures rather than product grids. */
-.omni-strips{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:0 0 18px;}
+/* Four strips, and the count per row has to divide into four or one of them
+   ends up alone on a second row with empty space beside it - the same hole the
+   hero row had. `auto-fit` was doing exactly that at three across. Four, then
+   two, then one: every step divides evenly. */
+.omni-strips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:0 0 18px;}
 .omni-strip{
   position:relative;display:block;overflow:hidden;border-radius:var(--om-r);
   background:var(--strip-tone,#1f5fd0);box-shadow:var(--om-shadow);color:#fff;
@@ -685,7 +689,8 @@ body{background:var(--om-page);color:var(--om-ink);}
 .omni-strip:hover .omni-strip__copy em{text-decoration:underline;}
 .omni-strip:focus-visible{outline:3px solid var(--om-act);outline-offset:2px;}
 
-@media (max-width:900px){.omni-strips{grid-template-columns:1fr;}}
+@media (max-width:1240px){.omni-strips{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:700px){.omni-strips{grid-template-columns:minmax(0,1fr);}}
 
 /* ---------- 17 product details and reviews ---------- */
 .ospec__cols{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;}
@@ -788,3 +793,36 @@ body{background:var(--om-page);color:var(--om-ink);}
   .omni-slot__copy{grid-template-columns:minmax(0,1fr);padding:14px;}
   .omni-slot__copy .obtn{grid-column:1;grid-row:auto;justify-self:start;}
 }
+
+/* ---------- 19 tinted campaign band ----------
+   A merchandising band reads as one offer when it sits on its own colour, the
+   way a seasonal campaign does in large catalogue retail. The tint is a theme
+   token rather than a fixed value, so switching theme moves this band with
+   everything else instead of leaving one green rectangle behind — which is the
+   failure mode the picker had before.
+
+   Two tones: the band, and a lighter card so the cards still read as objects
+   sitting on it rather than dissolving into it. */
+:root{
+  --om-tint:#e8f2f6;
+  --om-tint-card:#f7fbfc;
+  --om-tint-ink:#0d1418;
+}
+:root[data-theme="rose"]{--om-tint:#fbeae5;--om-tint-card:#fef6f3;}
+:root[data-theme="blue"]{--om-tint:#e8f2f6;--om-tint-card:#f7fbfc;}
+:root[data-theme="emerald"]{--om-tint:#e4f4ea;--om-tint-card:#f5fbf7;}
+:root[data-theme="violet"]{--om-tint:#efe9f9;--om-tint-card:#faf7fd;}
+:root[data-theme="amber"]{--om-tint:#fdf1dd;--om-tint-card:#fefaf1;}
+
+.omni-packs{
+  margin:8px 0 18px;padding:20px;
+  border-radius:var(--om-r);background:var(--om-tint);color:var(--om-tint-ink);
+}
+.omni-packs > h2{margin:0 0 14px;font-size:22px;font-weight:800;letter-spacing:-.015em;}
+.omni-packs .omni-six{
+  background:var(--om-tint-card);
+  box-shadow:none;border:1px solid rgba(13,20,24,.07);
+}
+/* Product art keeps its white surround inside the tinted card, so photography
+   shot on white still disappears into its box. */
+.omni-packs .omni-six__art{background:#fff;}
