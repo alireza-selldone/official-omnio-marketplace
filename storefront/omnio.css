@@ -53,7 +53,7 @@
   --om-shadow-2:0 3px 10px rgba(15,28,38,.14);
   --om-tap:44px;
 
-  --om-wrap:1500px;
+  --om-wrap:1680px;
   --om-pad:clamp(12px,2vw,22px);
 }
 
@@ -331,16 +331,20 @@ body{background:var(--om-page);color:var(--om-ink);}
 .omni-six__off,.omni-six__price{display:block;margin-top:5px;font-style:normal;font-size:12.5px;font-weight:700;}
 .omni-six__off{color:var(--om-deal);}
 
-@media (max-width:1340px){
+/* Each step drops a tile at the width where the remaining ones would otherwise
+   fall below about 300px. Below that a four-up product grid stops being
+   readable, and it is the width - not the tile count - that a zoomed-in browser
+   reduces, which is why the row felt cramped at 100% zoom on a wide screen. */
+@media (max-width:1560px){
   .omni-hero{grid-template-columns:1.24fr repeat(3,minmax(0,1fr));}
   .omni-hero > [data-tile="5"]{display:none;}
 }
-@media (max-width:1080px){
+@media (max-width:1240px){
   .omni-hero{grid-template-columns:1.24fr repeat(2,minmax(0,1fr));}
   .omni-hero > [data-tile="4"]{display:none;}
   .omni-packs__row{grid-template-columns:1fr;}
 }
-@media (max-width:820px){
+@media (max-width:940px){
   .omni-hero{grid-template-columns:1.1fr minmax(0,1fr);}
   .omni-hero > [data-tile="3"]{display:none;}
 }
